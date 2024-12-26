@@ -108,7 +108,13 @@ local function encode_number(val)
   if val ~= val or val <= -math.huge or val >= math.huge then
     error("unexpected number value '" .. tostring(val) .. "'")
   end
-  return string.format("%.14g", val)
+  if 1e-46 == 0 then
+    -- 32-bit float
+    return string.format("%.9g", val)
+  else
+    -- 64-bit double
+    return string.format("%.17g", val)
+  end
 end
 
 
