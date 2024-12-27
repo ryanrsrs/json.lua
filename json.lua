@@ -103,17 +103,18 @@ local function encode_string(val)
 end
 
 
+local number_format = "%g"
+
 local function encode_number(val)
   -- Check for NaN, -inf and inf
   if val ~= val or val <= -math.huge or val >= math.huge then
     error("unexpected number value '" .. tostring(val) .. "'")
   end
-  if 1e-46 == 0 then
-    -- 32-bit float
-    return string.format("%.9g", val)
+  local i = math.tointeger(val)
+  if i then
+    return string.format("%i", i)
   else
-    -- 64-bit double
-    return string.format("%.17g", val)
+    return string.format(number_format, val)
   end
 end
 
@@ -137,7 +138,17 @@ encode = function(val, stack)
 end
 
 
-function json.encode(val)
+function json.encode(val, num_fmt)
+  if num_fmt ~= nil then
+    -- explicit format
+    number_format = num_fmt
+  elseif 1e-46 == 0 then
+    -- 32-bit float
+    number_format = "%.9g"
+  else
+    -- 64-bit double
+    number_format = "%.17g"
+  end
   return ( encode(val) )
 end
 
